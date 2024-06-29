@@ -44,7 +44,8 @@ MachineRegisterInfo::MachineRegisterInfo(MachineFunction *MF)
     : MF(MF),
       TracksSubRegLiveness(EnableSubRegLiveness.getNumOccurrences()
                                ? EnableSubRegLiveness
-                               : MF->getSubtarget().enableSubRegLiveness()) {
+                               : MF->getSubtarget().enableSubRegLiveness()),
+      ReservedRegs(getTargetRegisterInfo()->getNumRegs(), false) {
   unsigned NumRegs = getTargetRegisterInfo()->getNumRegs();
   VRegInfo.reserve(256);
   RegAllocHints.reserve(256);
@@ -520,7 +521,7 @@ LLVM_DUMP_METHOD void MachineRegisterInfo::dumpUses(Register Reg) const {
 #endif
 
 void MachineRegisterInfo::freezeReservedRegs() {
-  ReservedRegs = getTargetRegisterInfo()->getReservedRegs(*MF);
+  ReservedRegs |= getTargetRegisterInfo()->getReservedRegs(*MF);
   assert(ReservedRegs.size() == getTargetRegisterInfo()->getNumRegs() &&
          "Invalid ReservedRegs vector from target");
 }
